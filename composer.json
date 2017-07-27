@@ -22,7 +22,7 @@
     "doctrine/doctrine-bundle": "1.6.*"
   },
   "autoload": {
-    "psr-4": { "Pimcore\\FixturesBundle\\": "" }
+    "psr-4": { "Piszczek\\PimcoreFixturesBundle\\": "" }
   },
   "extra": {
     "branch-alias": {
