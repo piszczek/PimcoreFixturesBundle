@@ -1,6 +1,6 @@
 <?php
 
-namespace Piszczek\FixturesBundle;
+namespace Piszczek\PimcoreFixturesBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
