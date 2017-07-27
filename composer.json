@@ -19,9 +19,7 @@
   "require": {
     "php": ">=5.6.0",
     "symfony/symfony": "3.3.*",
-    "doctrine/doctrine-bundle": "1.6.*",
-    "nelmio/alice": "2.2.*",
-    "fzaninotto/faker": "1.6.*"
+    "nelmio/alice": "^3.0@RC"
   },
   "autoload": {
     "psr-4": { "Piszczek\\PimcoreFixturesBundle\\": "" }
