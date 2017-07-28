@@ -2,8 +2,7 @@
 
 namespace Piszczek\PimcoreFixturesBundle\Command;
 
-use Nelmio\Alice\Loader\NativeLoader;
-use Pimcore\Model\Document\Page;
+use Piszczek\PimcoreFixturesBundle\Loader\NativeLoader;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
