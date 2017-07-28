@@ -1,0 +1,4 @@
+Pimcore\Model\Document\Page:
+    page (template):
+        __calls:
+            - save: []
