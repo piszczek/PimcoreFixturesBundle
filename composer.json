@@ -15,7 +15,6 @@
       "homepage": "https://github.com/piszczek/"
     }
   ],
-  "minimum-stability": "dev",
   "require": {
     "php": ">=5.6.0",
     "symfony/symfony": "3.3.*",
