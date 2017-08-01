@@ -7,6 +7,7 @@ use Nelmio\Alice\Definition\Property;
 use Nelmio\Alice\Generator\GenerationContext;
 use Nelmio\Alice\Generator\Hydrator\PropertyHydratorInterface;
 use Nelmio\Alice\ObjectInterface;
+use Pimcore\Model\AbstractModel;
 use Pimcore\Model\Document\Page;
 
 final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
@@ -26,23 +27,17 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
      */
     public function hydrate(ObjectInterface $object, Property $property, GenerationContext $context): ObjectInterface
     {
-        $document = $object->getInstance();
+        $model = $object->getInstance();
 
-        if ($document instanceof Page) {
+        if ($model instanceof AbstractModel) {
             switch ($property->getName()) {
-                case 'parent':
-                    $parentPage = $property->getValue();
+                //Allow add extra information from fixtures
+                case 'extra_data':
+                    $extraData = $property->getValue();
 
-                    if (! $parentPage instanceof Page) {
-                        throw new \Exception('Parent must be instance of ' . Page::class . 'class');
-                    }
-                    if (!$parentPage->getId()) {
-                        $parentPage->save();
-                    }
+                    $model->extraData = $extraData;
 
-                    $document = $document->setParent($parentPage);
-
-                    return new SimpleObject($object->getId(), $document);
+                    return new SimpleObject($object->getId(), $model);
             }
         }
 
