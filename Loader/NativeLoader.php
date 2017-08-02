@@ -2,6 +2,7 @@
 
 namespace Piszczek\PimcoreFixturesBundle\Loader;
 
+use Faker\Generator as FakerGenerator;
 use Nelmio\Alice\FileLoaderInterface;
 use Nelmio\Alice\Generator\Hydrator\PropertyHydratorInterface;
 use Nelmio\Alice\Generator\Instantiator\Chainable\NoCallerMethodCallInstantiator;
@@ -16,10 +17,20 @@ use Nelmio\Alice\Loader\NativeLoader as BaseNativeLoader;
 use Nelmio\Alice\ObjectSet;
 use Piszczek\PimcoreFixturesBundle\Hydrator\Property\PimcorePropertyAccesorHydrator;
 use Piszczek\PimcoreFixturesBundle\Instantiator\Chainable\PimcoreInstantiator;
-use Piszczek\PimcoreFixturesBundle\Persister\PimcorePersister;
+use Piszczek\PimcoreFixturesBundle\Processor\PimcoreProcessor;
+use Piszczek\PimcoreFixturesBundle\Provider\DirectoryProvider;
 
 class NativeLoader extends BaseNativeLoader
 {
+    public function createFakerGenerator(): FakerGenerator
+    {
+        $fakerGenerator = parent::createFakerGenerator();
+
+        $fakerGenerator->addProvider(new DirectoryProvider());
+
+        return $fakerGenerator;
+    }
+
     public function createFileLoader(): FileLoaderInterface
     {
         return new PimcoreFileLoader(
@@ -40,7 +51,7 @@ class NativeLoader extends BaseNativeLoader
         return new ExistingInstanceInstantiator(
             new InstantiatorResolver(
                 new InstantiatorRegistry([
-                    new PimcoreInstantiator(),
+                    new PimcoreInstantiator(new NullConstructorInstantiator()),
                     new NoCallerMethodCallInstantiator(),
                     new NullConstructorInstantiator(),
                     new NoMethodCallInstantiator(),
@@ -51,11 +62,11 @@ class NativeLoader extends BaseNativeLoader
     }
 
     /**
-     * @return PimcorePersister
+     * @return PimcoreProcessor
      */
-    public function getPersister(): PimcorePersister
+    public function getPersister(): PimcoreProcessor
     {
-        return new PimcorePersister();
+        return new PimcoreProcessor();
     }
 
     public function loadFile(string $file, array $parameters = [], array $objects = []): ObjectSet
@@ -66,10 +77,8 @@ class NativeLoader extends BaseNativeLoader
 
 
         foreach ($objectsSet->getObjects() as $object) {
-            $persister->persist($object);
+            $persister->process($object);
         }
-
-        $persister->flush();
 
         return $objectsSet;
     }
