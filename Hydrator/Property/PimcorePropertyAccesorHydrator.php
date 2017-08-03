@@ -41,7 +41,11 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
                 $model->setData(file_get_contents($value));
 
                 break;
-
+            //add default accesskey to navigation
+            case $propertyName === 'key' && $model instanceof Document\Page:
+                $model->setKey($value);
+                $model->setProperty('navigation_accesskey', 'text', $value, false, false);
+                break;
             case $propertyName === 'brickId' && $model instanceof Areablock:
                     $document = Document::getById($model->getDocumentId());
                     //todo:
