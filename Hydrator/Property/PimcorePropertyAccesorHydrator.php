@@ -2,6 +2,7 @@
 
 namespace Piszczek\PimcoreFixturesBundle\Hydrator\Property;
 
+use AppBundle\Document\Areabrick\AbstractAreabrick;
 use Nelmio\Alice\Definition\Object\SimpleObject;
 use Nelmio\Alice\Definition\Property;
 use Nelmio\Alice\Generator\GenerationContext;
@@ -46,30 +47,34 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
                 $model->setKey($value);
                 $model->setProperty('navigation_accesskey', 'text', $value, false, false);
                 break;
-            case $propertyName === 'brickId' && $model instanceof Areablock:
-                    $document = Document::getById($model->getDocumentId());
-                    //todo:
-                    $key = 1;
-                    $data = ['key' => $key, 'type' => $value];
 
-                    $model->setDataFromEditmode([$data]);
-                    $model->current = $key;
+            //handle nested blocks
+            case $propertyName === 'elements' && $model instanceof Areablock:
+                $document = Document::getById($model->getDocumentId());
+                $areaName = $model->getName();
+                //area data
+                $data = [];
+                $key = 1;
 
-                    $document->setElement($value, $model);
-                    $document->save();
-                break;
+                foreach ($value as $areaBrickName => $tags) {
+                    foreach ($tags as $tagName => $tag) {
+                        // if element isn't instance of tag, then create it
+                        if (! $tag instanceof Tag) {
+                            $tagData = is_array($tag)?$tag['data']:$tag;
+                            $class = is_array($tag)?$tag['class']:Tag\Input::class;
+                            $tag = new $class;
+                            $tag->setDataFromResource($tagData);
+                        }
 
-            case $propertyName === 'block' && $model instanceof Tag:
-                $document = Document::getById($value->getDocumentId());
+                        $tag->setRealName($tagName);
+                        $tag->setName($areaName . ':' . $key . '.' . $tagName);
+                        $document->setElement($tag->getName(), $tag);
+                    }
+                    $data[] = ['key' => $key++, 'type' => $areaBrickName];
+                }
 
-                $key = $value->current;
-
-                $model->setRealName($model->getName());
-
-                $name = $value->getName().':'.$key.'.'.$model->getName();
-                $model->setName($name);
-
-                $document->setElement($name, $model);
+                $model->setDataFromEditmode($data);
+                $document->setElement($areaName, $model);
                 $document->save();
                 break;
             default:
