@@ -70,7 +70,7 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
                         $tag->setName($areaName . ':' . $key . '.' . $tagName);
                         $document->setElement($tag->getName(), $tag);
                     }
-                    $data[] = ['key' => $key++, 'type' => $areaBrickName];
+                    $data[] = ['key' => (string) $key++, 'type' => $areaBrickName];
                 }
 
                 $model->setDataFromEditmode($data);
