@@ -57,6 +57,8 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
                 $key = 1;
 
                 foreach ($value as $areaBrickName => $tags) {
+                    $areaBrickName = preg_replace('/_\d+$/', '', $areaBrickName);
+
                     foreach ($tags as $tagName => $tag) {
                         // if element isn't instance of tag, then create it
                         if (! $tag instanceof Tag) {
