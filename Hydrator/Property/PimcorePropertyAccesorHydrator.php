@@ -12,6 +12,7 @@ use Pimcore\Model\Asset;
 use Pimcore\Model\Document;
 use Pimcore\Model\Document\Tag;
 use Pimcore\Model\Document\Tag\Areablock;
+use Pimcore\Model\Document\Tag\BlockInterface;
 
 final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
 {
@@ -51,33 +52,9 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
             //handle nested blocks
             case $propertyName === 'elements' && $model instanceof Areablock:
                 $document = Document::getById($model->getDocumentId());
-                $areaName = $model->getName();
-                //area data
-                $data = [];
-                $key = 1;
 
-                foreach ($value as $areaBrickName => $tags) {
-                    $areaBrickName = preg_replace('/_\d+$/', '', $areaBrickName);
+                $this->handleBlockElement($document, $model, $value);
 
-                    foreach ($tags as $tagName => $tag) {
-                        // if element isn't instance of tag, then create it
-                        if (! $tag instanceof Tag) {
-                            $tagData = is_array($tag)?$tag['data']:$tag;
-                            $class = is_array($tag)?$tag['class']:Tag\Input::class;
-                            $tag = new $class;
-                            $tag->setDataFromResource($tagData);
-                        }
-
-                        $tag->setRealName($tagName);
-                        $tag->setName($areaName . ':' . $key . '.' . $tagName);
-                        $document->setElement($tag->getName(), $tag);
-                    }
-                    $data[] = ['key' => (string) $key++, 'type' => $areaBrickName];
-                }
-
-                $model->setDataFromEditmode($data);
-                $document->setElement($areaName, $model);
-                $document->save();
                 break;
             default:
                 $handled = false;
@@ -89,4 +66,49 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
 
         return new SimpleObject($object->getId(), $model);
     }
+
+    private function handleBlockElement(Document $document, BlockInterface $block, $value)
+    {
+        $blockName = $block->getName();
+        //area data
+        $data = [];
+        $key = 1;
+
+
+        foreach ($value as $areaBrickName => $tags) {
+            $areaBrickName = preg_replace('/_\d+$/', '', $areaBrickName);
+
+            foreach ($tags as $tagName => $tag) {
+                // if element isn't instance of tag, then create it
+                if (!$tag instanceof Tag) {
+                    $tagData = is_array($tag) ? $tag['data'] : $tag;
+                    $class = is_array($tag) ? $tag['class'] : Tag\Input::class;
+                    $tag = new $class;
+                    $tag->setDataFromResource($tagData);
+                }
+
+                $tag->setRealName($tagName);
+                $tag->setName($blockName . ':' . $key . '.' . $tagName);
+
+                if ($tag instanceof Tag\Block) {
+                    $this->handleBlockElement($document, $tag, $tag->indices);
+                    continue;
+                }
+                $document->setElement($tag->getName(), $tag);
+            }
+            //in recursive call
+            if ($block instanceof Tag\Block) {
+                $data[] = $key++;
+            } else {
+                $data[] = ['key' => (string)$key++, 'type' => $areaBrickName];
+            }
+        }
+
+        $block->setDataFromEditmode($data);
+
+
+        $document->setElement($blockName, $block);
+        $document->save();
+    }
+
 }
