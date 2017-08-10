@@ -18,7 +18,7 @@ use Nelmio\Alice\ObjectSet;
 use Piszczek\PimcoreFixturesBundle\Hydrator\Property\PimcorePropertyAccesorHydrator;
 use Piszczek\PimcoreFixturesBundle\Instantiator\Chainable\PimcoreInstantiator;
 use Piszczek\PimcoreFixturesBundle\Processor\PimcoreProcessor;
-use Piszczek\PimcoreFixturesBundle\Provider\DirectoryProvider;
+use Piszczek\PimcoreFixturesBundle\Provider\PimcoreProvider;
 
 class NativeLoader extends BaseNativeLoader
 {
@@ -26,7 +26,7 @@ class NativeLoader extends BaseNativeLoader
     {
         $fakerGenerator = parent::createFakerGenerator();
 
-        $fakerGenerator->addProvider(new DirectoryProvider());
+        $fakerGenerator->addProvider(new PimcoreProvider());
 
         return $fakerGenerator;
     }
