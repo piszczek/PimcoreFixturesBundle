@@ -6,6 +6,7 @@ namespace Piszczek\PimcoreFixturesBundle\Provider;
 
 use Pimcore\Model\Document\Tag\Checkbox;
 use Pimcore\Model\Document\Tag\Image;
+use Pimcore\Model\Document\Tag\Link;
 use Pimcore\Model\Document\Tag\Select;
 use Pimcore\Model\Document\Tag\Textarea;
 use Pimcore\Model\Document\Tag\Wysiwyg;
@@ -76,6 +77,14 @@ class PimcoreProvider
     {
         $tag = new Select();
         $tag->setDataFromResource($data);
+
+        return $tag;
+    }
+
+    public function linkTag(string $path, string $text): Link
+    {
+        $tag = new Link();
+        $tag->setDataFromEditmode(['path' => $path, 'text' => $text]);
 
         return $tag;
     }
