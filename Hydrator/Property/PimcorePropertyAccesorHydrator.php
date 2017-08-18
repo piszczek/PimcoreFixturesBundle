@@ -13,6 +13,8 @@ use Pimcore\Model\Document;
 use Pimcore\Model\Document\Tag;
 use Pimcore\Model\Document\Tag\Areablock;
 use Pimcore\Model\Document\Tag\BlockInterface;
+use Pimcore\Model\Object\ClassDefinition\Data;
+use Pimcore\Model\Object\Concrete;
 
 final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
 {
@@ -56,6 +58,20 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
                 $this->handleBlockElement($document, $model, $value);
 
                 break;
+
+            case $propertyName === 'values' && $model instanceof Concrete:
+                $data = $value;
+
+                foreach ($data as $key => $value) {
+                    $fd = $model->getClass()->getFieldDefinition($key);
+                    if ($fd instanceof Data) {
+                        //todo: localized fields
+
+                        $model->setValue($key, $fd->getDataFromEditmode($value, $model));
+                    }
+                }
+                break;
+
             default:
                 $handled = false;
         }

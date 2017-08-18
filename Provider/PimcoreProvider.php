@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Piszczek\PimcoreFixturesBundle\Provider;
 
+use Pimcore\Db;
 use Pimcore\Model\Document\Tag\Checkbox;
 use Pimcore\Model\Document\Tag\Image;
 use Pimcore\Model\Document\Tag\Link;
@@ -87,5 +88,14 @@ class PimcoreProvider
         $tag->setDataFromEditmode(['path' => $path, 'text' => $text]);
 
         return $tag;
+    }
+
+    public function loadSQL(string $path)
+    {
+        $path = $this->path($path);
+
+        $db = Db::get();
+
+        $db->query(file_get_contents($path));
     }
 }
