@@ -25,7 +25,7 @@ class PimcoreProvider
         return $rootDir . DIRECTORY_SEPARATOR . $sourcePath;
     }
 
-    public function imageTag(string $sourcePath): Image
+    public function imageAsset(string $sourcePath)
     {
         if (!file_exists($sourcePath)) {
             $sourcePath = $this->path($sourcePath);
@@ -40,6 +40,13 @@ class PimcoreProvider
             $imageAsset->setData(file_get_contents($sourcePath));
             $imageAsset->save();
         }
+
+        return $imageAsset;
+    }
+
+    public function imageTag(string $sourcePath): Image
+    {
+        $imageAsset = $this->imageAsset($sourcePath);
 
         $imageTag = new Image();
         $imageTag->setImage($imageAsset);
