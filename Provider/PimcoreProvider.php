@@ -6,6 +6,7 @@ namespace Piszczek\PimcoreFixturesBundle\Provider;
 
 use Pimcore\Db;
 use Pimcore\Model\Document\Tag\Checkbox;
+use Pimcore\Model\Document\Tag\Href;
 use Pimcore\Model\Document\Tag\Image;
 use Pimcore\Model\Document\Tag\Link;
 use Pimcore\Model\Document\Tag\Select;
@@ -104,5 +105,13 @@ class PimcoreProvider
         $db = Db::get();
 
         $db->query(file_get_contents($path));
+    }
+
+    public function hrefTag(int $id, string $type = 'object', $subType = 'object')
+    {
+        $tag = new Href();
+        $tag->setDataFromEditmode(['id' => $id, 'type' => $type, 'subType' => $subType]);
+
+        return $tag;
     }
 }
