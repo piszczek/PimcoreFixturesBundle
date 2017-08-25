@@ -12,6 +12,8 @@ use Pimcore\Model\Document\Tag\Link;
 use Pimcore\Model\Document\Tag\Select;
 use Pimcore\Model\Document\Tag\Textarea;
 use Pimcore\Model\Document\Tag\Wysiwyg;
+use Pimcore\Model\Object\ClassDefinition;
+use Pimcore\Model\Object\ClassDefinition\Service;
 
 class PimcoreProvider
 {
@@ -113,5 +115,18 @@ class PimcoreProvider
         $tag->setDataFromEditmode(['id' => $id, 'type' => $type, 'subType' => $subType]);
 
         return $tag;
+    }
+
+    public function importClass(string $className, string $path)
+    {
+        $classDefinition = new ClassDefinition();
+        $classDefinition->setName($className);
+
+        $path = $this->path($path);
+
+        $success = Service::importClassDefinitionFromJson($classDefinition, file_get_contents($path));
+
+
+        return $success;
     }
 }
