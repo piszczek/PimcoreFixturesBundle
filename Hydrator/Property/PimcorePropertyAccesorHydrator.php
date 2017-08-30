@@ -85,46 +85,51 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
 
     private function handleBlockElement(Document $document, BlockInterface $block, $value)
     {
-        $blockName = $block->getName();
+        //if block name isn't set (for recurive area block)
+        $blockName = $block->getName()??'';
         //area data
         $data = [];
         $key = 1;
 
+        if ($blockName) {
+            foreach ($value as $areaBrickName => $tags) {
+                $areaBrickName = preg_replace('/_\d+$/', '', $areaBrickName);
 
-        foreach ($value as $areaBrickName => $tags) {
-            $areaBrickName = preg_replace('/_\d+$/', '', $areaBrickName);
+                foreach ($tags as $tagName => $tag) {
+                    // if element isn't instance of tag, then create it
+                    if (!$tag instanceof Tag) {
+                        $tagData = is_array($tag) ? $tag['data'] : $tag;
+                        $class = is_array($tag) ? $tag['class'] : Tag\Input::class;
+                        $tag = new $class;
+                        $tag->setDataFromResource($tagData);
+                    }
 
-            foreach ($tags as $tagName => $tag) {
-                // if element isn't instance of tag, then create it
-                if (!$tag instanceof Tag) {
-                    $tagData = is_array($tag) ? $tag['data'] : $tag;
-                    $class = is_array($tag) ? $tag['class'] : Tag\Input::class;
-                    $tag = new $class;
-                    $tag->setDataFromResource($tagData);
+                    $tag->setRealName($tagName);
+                    $tag->setName($blockName . ':' . $key . '.' . $tagName);
+
+                    if ($tag instanceof Tag\Block || $tag instanceof Tag\Areablock) {
+                        $this->handleBlockElement($document, $tag, $tag->indices);
+                        continue;
+                    }
+
+                    $document->setElement($tag->getName(), $tag);
                 }
-
-                $tag->setRealName($tagName);
-                $tag->setName($blockName . ':' . $key . '.' . $tagName);
-
-                if ($tag instanceof Tag\Block) {
-                    $this->handleBlockElement($document, $tag, $tag->indices);
-                    continue;
+                //in recursive call
+                if ($block instanceof Tag\Block) {
+                    $data[] = $key++;
+                } else {
+                    $data[] = ['key' => (string)$key++, 'type' => $areaBrickName];
                 }
-                $document->setElement($tag->getName(), $tag);
             }
-            //in recursive call
-            if ($block instanceof Tag\Block) {
-                $data[] = $key++;
-            } else {
-                $data[] = ['key' => (string)$key++, 'type' => $areaBrickName];
-            }
+
+            $block->setDataFromEditmode($data);
+
+            $document->setElement($blockName, $block);
+            $document->save();
+        } else {
+            //for recursive call
+            $block->indices = $value;
         }
-
-        $block->setDataFromEditmode($data);
-
-
-        $document->setElement($blockName, $block);
-        $document->save();
     }
 
 }
