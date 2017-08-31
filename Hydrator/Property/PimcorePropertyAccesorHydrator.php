@@ -72,6 +72,21 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
                 }
                 break;
 
+            case $propertyName === 'tags' && $model instanceof Concrete:
+                $tags = $value;
+                foreach ($tags as $tag) {
+                    if ($tag instanceof \Pimcore\Model\Element\Tag) {
+                        if (!$model->getId()) {
+                            $model->save();
+                        }
+                        \Pimcore\Model\Element\Tag::addTagToElement('object', $model->getId(), $tag);
+                    } else {
+                        $handled = false;
+                        break;
+                    }
+                }
+                break;
+
             default:
                 $handled = false;
         }
