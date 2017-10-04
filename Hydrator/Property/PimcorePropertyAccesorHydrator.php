@@ -8,6 +8,8 @@ use Nelmio\Alice\Definition\Property;
 use Nelmio\Alice\Generator\GenerationContext;
 use Nelmio\Alice\Generator\Hydrator\PropertyHydratorInterface;
 use Nelmio\Alice\ObjectInterface;
+use Pimcore\Bundle\EcommerceFrameworkBundle\Controller\PricingController;
+use Pimcore\Bundle\EcommerceFrameworkBundle\PricingManager\Rule;
 use Pimcore\Model\Asset;
 use Pimcore\Model\Document;
 use Pimcore\Model\Document\Tag;
@@ -15,6 +17,7 @@ use Pimcore\Model\Document\Tag\Areablock;
 use Pimcore\Model\Document\Tag\BlockInterface;
 use Pimcore\Model\Object\ClassDefinition\Data;
 use Pimcore\Model\Object\Concrete;
+use Symfony\Component\HttpFoundation\Request;
 
 final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
 {
@@ -86,7 +89,20 @@ final class PimcorePropertyAccesorHydrator implements PropertyHydratorInterface
                     }
                 }
                 break;
+            case $propertyName === 'values' && $model instanceof Rule:
+                $model->save();
 
+                $postData['id'] = $model->getId();
+                $postData['data'] = json_encode($value);
+
+                $container = \Pimcore::getKernel()->getContainer();
+                $controller = $container->get(PricingController::class);
+                $controller->setContainer($container);
+
+                $request = new Request($postData);
+                $controller->saveAction($request);
+
+                break;
             default:
                 $handled = false;
         }
