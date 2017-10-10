@@ -1,31 +1,22 @@
 {
-  "name": "piszczek/pimcore-fixtures-bundle",
+  "name": "pimcore/demo-ecommerce",
+  "description": "Pimcore 5.x Fixtures loader - develop your project with same version of data",
+  "keywords": ["pimcore", "datafixtures", "fixtures"],
   "type": "symfony-bundle",
-  "description": "With this bundle you'll be able to create fixtures through yaml files in an easy way",
-  "keywords": [
-    "pimmcore",
-    "fixtures",
-    "yaml"
-  ],
-  "homepage": "https://github.com/piszczek/PimcoreFixturesBundle",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "authors": [
     {
       "name": "Andrzej Piszczek",
-      "homepage": "https://github.com/piszczek/"
+      "homepage": "http://www.linkedin.com/in/piszczek-andrzej",
+      "role": "Developer"
     }
   ],
-  "prefer-stable": true,
-  "require": {
-    "php": ">=5.6.0",
-    "symfony/symfony": "3.3.*",
-    "nelmio/alice": "^3.0@dev"
-  },
   "autoload": {
     "psr-4": { "Piszczek\\PimcoreFixturesBundle\\": "" }
   },
-  "extra": {
-    "branch-alias": {
-    }
+
+  "require": {
+    "php": ">=7.0",
+    "nelmio/alice": "^3.0.0"
   }
 }
